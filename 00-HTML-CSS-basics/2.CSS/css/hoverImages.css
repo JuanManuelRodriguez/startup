@@ -1,0 +1,26 @@
+.column.third{
+    position: relative;
+}
+.hoverSpan{
+    left: 19px;
+    top: 0;
+    border-radius: 0;
+    position: absolute;
+    opacity: 0;
+    z-index: 1000;
+    width: 89%;
+    height: 86%;
+    text-align: center;
+    -webkit-transition: all 0.3s ease-in-out;
+    -moz-transition: all 0.3s ease-in-out;
+    -o-transition: all 0.3s ease-in-out;
+    -ms-transition: all 0.3s ease-in-out;
+    transition: all 0.3s ease-in-out;
+}
+.hoverSpan:hover{
+    opacity: 1;
+}
+.textBox{
+    background-color: rgba(255,255,255,0.5);
+    color:blue;
+}
