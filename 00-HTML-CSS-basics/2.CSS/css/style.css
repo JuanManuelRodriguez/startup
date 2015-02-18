@@ -65,6 +65,13 @@ article{
    background-color: blue!important;
 }
 
+/*
+Imagine there is a declaration like class=”oh-no-inline-styles” style=”background:red” 
+and you need to change the background to green without changing the inline style. How could you accomplish this?*/ 
+.oh-no-inline-styles{
+    background-color: green!important;
+}
+
 header,footer,aside,nav,section,article{
     border: black 1px solid;
     border-radius: 5px;
