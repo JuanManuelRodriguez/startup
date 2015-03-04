@@ -1,0 +1,15 @@
+{
+  "name": "pkgmovies",
+  "version": "1.0.0",
+  "description": "",
+  "main": "Director.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JuanManuelRodriguez/startup/tree/master/03-Node-npm-modules"
+  },
+  "author": "",
+  "license": "ISC"
+}

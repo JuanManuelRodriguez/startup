@@ -1,6 +1,6 @@
 var Movie = require('./AllMovies');
-var cinema = new Movie();
+var Director = new Movie();
 
-cinema.set("title", "Terminator");
-cinema.play();
-cinema.stop();
+Director.set("title", "Terminator");
+Director.play();
+Director.stop();
