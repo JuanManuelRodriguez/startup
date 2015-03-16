@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+ 		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<title>LiBBreta de contactos</title>		
+	</head>
+	<body>
+		<!-- HTML -->
+		<div id="libapp">
+			<div class="title"><h1>Contactos</h1></div>
+			<div class="container">				
+				<div id="create-contact">
+					<form id="new-contact">
+						<label for="name">Nombre: </label>
+						<input id="name" type="text">
+						<label for="phone">Telefono: </label>
+						<input id="phone" type="text">
+						<label for="address">Direccion: </label>
+						<input id="address" type="text">
+						<input id="submit" type="submit" value="guardar contacto">	
+						<input type="reset" value="Borrar campos">	
+					</form>
+				</div>	
+				<div id="contacts">
+					<div id="contact-list"></div>
+				</div>
+			</div>
+		</div>
+
+		<!-- TEMPLATES -->
+		<script id="contact" type="text/x-handlebars-template">
+			<div>
+	    		<span id="contact-name">Name: {{name}}</span><br>
+	  			<span>Phone: {{phone}}</span><br>
+	  			<span>Address: {{address}}</span><br>
+	  			<button id="edit-button" >Edit</button>
+	  			<button id="delete-button" >Delete</button>
+	  		</div>
+	  		<hr>	  		
+  		</script>
+
+  		<script id="edit" type="text/x-handlebars-template">
+  			<div class="edit-content"><h3>  Edit </h3></div>
+			<label>Name:<input class="contact-input" type="text" value="{{name}}" /></label>
+  			<label>Phone:<input class="contact-input" type="text" value="{{phone}}" /></label>
+  			<label>Address:<input class="contact-input" type="text" value="{{address}}" /></label>
+		</script>
+		<script id="details" type="text/x-handlebars-template">
+			<div>
+	    		<span class="contact-name">Name: {{name}}</span><br>
+	  			<span>Phone: {{phone}}</span><br>
+	  			<span>Address: {{address}}</span><br>
+	  			<button id="edit-button" >Edit</button>
+	  			<button id="delete-button" >Delete</button>
+	  		</div>
+		</script>
+		<script>
+			window.stade = '';
+			window.contactID = '';
+		</script>
+
+  		<!-- LIBRARIES -->
+  		<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.js" type="text/javascript"></script>
+	    <script src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.2/underscore-min.js" type="text/javascript"></script>
+	    <script src="https://cdnjs.cloudflare.com/ajax/libs/handlebars.js/3.0.0/handlebars.js"type="text/javascript"></script>
+	    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone.js/1.1.2/backbone-min.js" type="text/javascript"></script>
+	    <script src="https://cdnjs.cloudflare.com/ajax/libs/backbone-localstorage.js/1.1.16/backbone.localStorage-min.js" type="text/javascript"></script> 
+
+	    <!-- APP -->
+
+	    
+	    <script type="text/javascript">
+	    
+	    // ------ MODEL ------
+	    var ContactModel = Backbone.Model.extend({
+	    	urlRoot:'home/',
+	    	defaults:{
+	    		name:'cantacto vacio...',
+	    		phone:'',
+	    		address:''
+	    	},
+	    	
+	    	initialize:function() {
+	    		if (!this.get('name')) {
+        			this.set({'name': this.defaults.name});
+      			}
+	    	}
+		});		
+
+		// ------ COLLECTION ------
+		var ContactCollection = Backbone.Collection.extend({
+			model: ContactModel,
+			url:'/home',
+			// Save the contacts under the `"Backbone-LiBBreta"` namespace.
+			localStorage: new Backbone.LocalStorage("Backbone-LiBBreta"),
+			
+			comparator:function(ContactModel){
+				return ContactModel.get('name');
+			}
+
+		});
+
+		var contactList = new ContactCollection();
+		var contact1 =new ContactModel({name:"juan",phone:"2234412212",address:"aca a al vuelta"});
+		var contact2 = new ContactModel({name:"manuel",phone:"2494555111",address:"al lado"});
+		var contact3 = new ContactModel({name:"agustina",phone:"2494555222",address:"en frente"});
+		contactList.create(contact1);
+		contactList.create(contact2);
+		contactList.create(contact3);
+
+		var ContactRouter = Backbone.Router.extend({
+			routes:{
+				'home': 'showContactList',
+				'home/:id':'showContactId'
+			},
+			showContactList:function(){
+				var view = new ListView();
+			},				
+			showContactId:function(id){
+				//window.contactID = id;
+				var viewc = new ContactView({model:ContactModel});
+				viewc.detail(id);
+				viewc.render();
+			}
+		});
+
+		
+		var ListView = Backbone.View.extend({
+
+			el:'#contacts',
+			initialize:function(){
+				contactList.on('add',this.ShowContacts);
+				contactList.fetch();
+			},
+			ShowContacts:function(ContactModel){
+				var viewc = new ContactView({model:ContactModel});
+				$('#contact-list').append(viewc.render().$el);
+			}
+
+		});
+
+		var ContactView = Backbone.View.extend({				
+				template : Handlebars.compile($('#contact').html()),
+				events:{
+					'click #contact-name': 'detail'
+				},
+				render:function(){
+					
+					this.$el.html(this.template(this.model.toJSON()));
+					return this;	
+				},
+				detail:function(id){
+					Backbone.history.navigate('home/'+ this.model.get(id),{trigger:true});
+				}
+		});
+
+		var contactRoutes = new ContactRouter();
+		Backbone.history.start({pushState: false});
+		contactRoutes.navigate('home');
+		</script>
+	</body>
+</html>
