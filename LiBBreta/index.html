@@ -20,10 +20,11 @@
 						<input id="address-input" type="text">	
 						<input type="reset" value="clear fiels">	
 					</form>
-					<button id="submit">Save</button>
+					<button id="guardar">save</button>
 				</div>	
 				<div id="contacts">
-					<div id="contact-list">Touch the name for contact detail</div>
+					<div><h3>Touch the name for contact detail</h3></div>
+					<div id="contact-list"></div>
 					<div id="contact-detail"></div>
 				</div>
 			</div>
@@ -43,7 +44,7 @@
   		</script>
 
   		<script id="edit" type="text/x-handlebars-template">
-  			<div class="edit-content"><h3>  Edit </h3></div>
+  			<div class="edit-content"><h3> Edit </h3></div>
 			<label>Name:<input class="edit-name-input" type="text" value="{{name}}" /></label>
   			<label>Phone:<input class="edit-phone-input" type="text" value="{{phone}}" /></label>
   			<label>Address:<input class="edit-address-input" type="text" value="{{address}}" /></label>
@@ -95,8 +96,8 @@
 		var ContactCollection = Backbone.Collection.extend({
 			model: ContactModel,
 			url:'/home',
-			// Save the contacts under the "Backbone-LiBBreta" namespace.
-			localStorage: new Backbone.LocalStorage("Backbone-LiBBreta"),
+			// Save the contacts under the "LiBBreta-Backbone" namespace.
+			localStorage: new Backbone.LocalStorage("LiBBreta-Backbone"),
 			
 			comparator:function(ContactModel){
 				return ContactModel.get('name');
@@ -106,9 +107,9 @@
 
 		// ---------- INSTANCES ---------
 		var contactList = new ContactCollection();
-		var contact1 =new ContactModel({id:'1',name:"juan",phone:"2234412212",address:"aca a al vuelta"});
-		var contact2 = new ContactModel({id:'2',name:"manuel",phone:"2494555111",address:"al lado"});
-		var contact3 = new ContactModel({id:'3',name:"agustina",phone:"2494555222",address:"en frente"});
+		var contact1 = new ContactModel({name:"juan",phone:"2234412212",address:"aca a al vuelta"});
+		var contact2 = new ContactModel({name:"manuel",phone:"2494555111",address:"al lado"});
+		var contact3 = new ContactModel({name:"agustina",phone:"2494555222",address:"en frente"});
 		contactList.create(contact1);
 		contactList.create(contact2);
 		contactList.create(contact3);
@@ -134,26 +135,34 @@
 		// ListVIew and ContactView are use to render the collection with the #contact template 
 		var ListView = Backbone.View.extend({
 
-			el:'#contacts',
+			el:'#libapp',
 			events:{
-				'click #submit': 'createContact'
+				'click #guardar': 'createContact'
 			},
 			initialize:function(){
-				this.listenTo(contactList,'add',this.showContacts);
-				this.listenTo(contactList,'remove',this.resetContacts)
+				contactList.on('add',this.showContacts,this);
+				contactList.on('remove',this.resetContacts,this);
 				contactList.fetch();
 			},
-			showContacts:function(ContactModel){
-				var viewc = new ContactView({model:ContactModel});
-				$('#contact-list').append(viewc.render().$el);
+			showContacts:function(modelo){
+				var view = new ContactView({model:modelo});
+				$('#contact-list').append(view.render().$el);
+				
 			},
 			createContact:function(){
-				contactList.create({
-					"name":$('.name-input').val(),
-					"phone":$('.phone-input').val(),
-					"address":$('.address-input').val()
-				});
-				contactList.each(this.showContacts,this);
+				console.log('hola');
+				var name = $('#name-input').val();
+				var phone = $('#phone-input').val();
+				var address = $('#address-input').val();
+				contactList.create({"name":name,"phone":phone,"address":address});
+				$('#name-input').val('');
+				$('#phone-input').val('');
+				$('#address-input').val('');
+
+			},
+			addContact:function(modelo){
+				var viewc = new ContactView({model:modelo});
+				$('#contact-list').append(viewc.render().el);
 			},
 			resetContacts:function(){
 				this.$('#contact-list').html('');
@@ -163,44 +172,46 @@
 		});
 
 		var ContactView = Backbone.View.extend({				
-				template : Handlebars.compile($('#contact').html()),
-				events:{
-					'click #contact-name': 'detail',
-					'click #delete-button': 'delete'
-				},
-				initialize:function(){
-					var self = this;
-					contactRoutes.on('route:showContactId',function(){
-						self.render();
-					});
-					contactRoutes.on('route:showContactList',function() {
-						self.render();
-					});
-				},
-				render:function(){
-					if(window.state === "list"){
-						$('#contact-detail').hide();
-						$('#contact-list').show();
-						this.$el.html(this.template(this.model.toJSON()));
-					}
-					else if(window.state === 'detail'){
-						$('#contact-detail').show();
-						$('#contact-list').hide();
-						$('#create-contact').hide();
-						$('.title').hide();
-						if(this.model.get('id') === window.contactID){
-							new ContactDetailView({model: this.model});
-						}
-					}
-					
-					return this;	
-				},
-				detail:function(){
-					Backbone.history.navigate('contact/'+ this.model.get('id'),{trigger:true});
-				},
-				delete:function(){
-					this.model.destroy();
+			template : Handlebars.compile($('#contact').html()),
+			events:{
+				'click #contact-name': 'detail',
+				'click #delete-button': 'delete'
+			},
+			initialize:function(){
+				var self = this;
+				contactRoutes.on('route:showContactId',function(){
+					self.render();
+				});
+				contactRoutes.on('route:showContactList',function() {
+					self.render();
+				});
+			},
+			render:function(){
+				if(window.state === "list"){
+					$('#contact-detail').hide();
+					$('#contact-list').show();
+					$('#create-contact').show();
+					$('.title').show();
+					this.$el.html(this.template(this.model.toJSON()));
 				}
+				else if(window.state === "detail"){
+					$('#contact-detail').show();
+					$('#contact-list').hide();
+					$('#create-contact').hide();
+					$('.title').hide();
+					if(this.model.get('id') === window.contactID){
+						new ContactDetailView({model: this.model});
+					}
+				}
+				
+				return this;	
+			},
+			detail:function(){
+				Backbone.history.navigate('contact/'+ this.model.get('id'),{trigger:true});
+			},
+			delete:function(){
+				this.model.destroy();
+			}
 		});
 
 		// This view show contact detail when navigate to contact/'id'
