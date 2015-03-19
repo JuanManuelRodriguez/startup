@@ -37,7 +37,6 @@
 	    		<span id="contact-name">Name: {{name}}</span><br>
 	  			<span>Phone: {{phone}}</span><br>
 	  			<span>Address: {{address}}</span><br>
-	  			<button id="edit-button" >Edit</button>
 	  			<button id="delete-button" >Delete</button>
 	  		</div>
 	  		<hr>	  		
@@ -45,18 +44,22 @@
 
   		<script id="edit" type="text/x-handlebars-template">
   			<div class="edit-content"><h3> Edit </h3></div>
-			<label>Name:<input class="edit-name-input" type="text" value="{{name}}" /></label>
-  			<label>Phone:<input class="edit-phone-input" type="text" value="{{phone}}" /></label>
-  			<label>Address:<input class="edit-address-input" type="text" value="{{address}}" /></label>
+			
+  			
+  			
 		</script>
 
 		<script id="details" type="text/x-handlebars-template">
 			<button class="back">Back to home</button>
 			<div>
-	    		<span>Name: {{name}}</span><br>
-	  			<span>Phone: {{phone}}</span><br>
-	  			<span>Address: {{address}}</span><br>
+	    		<p id="n-detail" style="margin:0px">Name: <span id="name-detail" value="{{name}}">{{name}}</span></p><br>
+	    		<label class="edit-name-label">Name:<input class="edit-name-input" type="text" value="{{name}}" /></label>
+	  			<p id="p-detail" style="margin:0px">Phone: <span id="phone-detail" value="{{phone}}">{{phone}}</span></p><br>
+	  			<label class="edit-phone-label">Phone:<input class="edit-phone-input" type="text" value="{{phone}}" /></label>
+	  			<p id="a-detail" style="margin:0px">Address: <span id="address-detail" value="{{address}}">{{address}}</span></p><br>
+	  			<label class="edit-address-label">Address:<input class="edit-address-input" type="text" value="{{address}}" /></label>
 	  			<button id="edit-button" >Edit</button>
+	  			<button id="save-edit-button" display="none">Save</button>
 	  		</div>
 		</script>
 		<script>
@@ -219,18 +222,77 @@
 			el:'#contact-detail',
 			template : Handlebars.compile($('#details').html()),
 			events:{
-				'click .back':'back'
+				'click .back':'back',
+				'click #edit-button': 'edit',
+				'click #save-edit-button': 'saveEdit'
 			},
 			initialize:function(){
-				this.render();
+				this.model.on('change',this.render(),this);
+				$('.edit-name-label').hide();
+				$('.edit-phone-label').hide();
+				$('.edit-address-label').hide();
+				$('#save-edit-button').hide();
 			},
 			render:function(){
 				this.$el.html(this.template(this.model.toJSON()));
 			},
 			back:function(){
 				Backbone.history.navigate('home',{trigger:true});
+			},
+			edit:function(){
+				$('#n-detail').hide();
+				$('#p-detail').hide();
+				$('#a-detail').hide();
+				$('#edit-button').hide();
+				$('.edit-name-label').show();
+				$('.edit-phone-label').show();
+				$('.edit-address-label').show();
+				$('#save-edit-button').show();
+			},
+			saveEdit:function(){
+				var ename = $('.edit-name-input').val();
+				var ephone = $('.edit-phone-input').val();
+				var eaddress = $('.edit-address-input').val();
+				if ((ename)&&(ephone)&&(eaddress)){
+					this.model.save({name:ename,phone:ephone,address:eaddress});
+				}
+				$('#name-detail').text(ename);
+				$('#phone-detail').text(ephone);
+				$('#address-detail').text(eaddress);
+				$('#n-detail').show();
+				$('#p-detail').show();
+				$('#a-detail').show();
+				$('#edit-button').show();
+				$('.edit-name-label').hide();
+				$('.edit-phone-label').hide();
+				$('.edit-address-label').hide();
+				$('#save-edit-button').hide();
 			}
 		});
+		/*initialize: function(){
+        this.model.on('change', this.render, this);
+      },      
+      events: {
+        'dblclick label' : 'edit',
+        'keypress .edit' : 'updateOnEnter',
+        'blur .edit' : 'close'
+      },
+      edit: function(){
+        this.$el.addClass('editing');
+        this.input.focus();
+      },
+      close: function(){
+        var value = this.input.val().trim();
+        if(value) {
+          this.model.save({title: value});
+        }
+        this.$el.removeClass('editing');
+      },
+      updateOnEnter: function(e){
+        if(e.which == 13){
+          this.close();
+        }
+       }            */
 
 		var contactRoutes = new ContactRouter();
 		Backbone.history.start({pushState: false});
