@@ -52,11 +52,11 @@
 		<script id="details" type="text/x-handlebars-template">
 			<button class="back">Back to home</button>
 			<div>
-	    		<p id="n-detail" style="margin:0px">Name: <span id="name-detail" value="{{name}}">{{name}}</span></p><br>
+	    		<p id="n-detail" style="margin:0px">Name: <span id="name-detail">{{name}}</span></p><br>
 	    		<label class="edit-name-label">Name:<input class="edit-name-input" type="text" value="{{name}}" /></label>
-	  			<p id="p-detail" style="margin:0px">Phone: <span id="phone-detail" value="{{phone}}">{{phone}}</span></p><br>
+	  			<p id="p-detail" style="margin:0px">Phone: <span id="phone-detail">{{phone}}</span></p><br>
 	  			<label class="edit-phone-label">Phone:<input class="edit-phone-input" type="text" value="{{phone}}" /></label>
-	  			<p id="a-detail" style="margin:0px">Address: <span id="address-detail" value="{{address}}">{{address}}</span></p><br>
+	  			<p id="a-detail" style="margin:0px">Address: <span id="address-detail">{{address}}</span></p><br>
 	  			<label class="edit-address-label">Address:<input class="edit-address-input" type="text" value="{{address}}" /></label>
 	  			<button id="edit-button" >Edit</button>
 	  			<button id="save-edit-button" display="none">Save</button>
@@ -269,30 +269,6 @@
 				$('#save-edit-button').hide();
 			}
 		});
-		/*initialize: function(){
-        this.model.on('change', this.render, this);
-      },      
-      events: {
-        'dblclick label' : 'edit',
-        'keypress .edit' : 'updateOnEnter',
-        'blur .edit' : 'close'
-      },
-      edit: function(){
-        this.$el.addClass('editing');
-        this.input.focus();
-      },
-      close: function(){
-        var value = this.input.val().trim();
-        if(value) {
-          this.model.save({title: value});
-        }
-        this.$el.removeClass('editing');
-      },
-      updateOnEnter: function(e){
-        if(e.which == 13){
-          this.close();
-        }
-       }            */
 
 		var contactRoutes = new ContactRouter();
 		Backbone.history.start({pushState: false});
